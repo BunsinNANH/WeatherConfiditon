@@ -40,6 +40,7 @@ export default class App extends Component<Props> {
           <Text style={styles.weatherCondition}>Blue Sky</Text>
           <Text style={styles.temperature}>27</Text>
           <TextInput style={styles.searchCity} placeholder="Search City"></TextInput>
+          
         </View>
       </ImageBackground>
     );
