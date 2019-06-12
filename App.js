@@ -16,11 +16,23 @@ import {Platform,
   TextInput,
 } from 'react-native';
 import axios from 'axios';
-function funchange(){
-  console.log(this);
-}
-const API_KEY = 'df321a026c2f5245320b089d52dcedb3';
-const DEFAULT_ZIPCODE = 90210;
+// import { getLocation, getData } from 'react-native-weather-api';
+// getLocation();  s
+
+// let cityName = ""; 
+// let temperature = "";
+// let windSpeed = "";
+
+// setTimeout(function() {    
+//   let data = new getData()
+//   cityName = data.city;
+//   temperature = data.tempC;
+//   windSpeed = data.windKph;
+    
+//   console.log(cityName);
+// },2000);
+// const API_KEY = 'df321a026c2f5245320b089d52dcedb3';
+// const DEFAULT_ZIPCODE = 90210;
 
 type Props = {};
 export default class App extends Component<Props> {
@@ -39,7 +51,24 @@ export default class App extends Component<Props> {
     weather: ""
   }
   componentDidMount(){
-    this.handlechangeText('Phnom Penh');
+    // this.handlechangeText(this.state.country);
+    axios
+    .get("https://api.apixu.com/v1/current.json?key=16d717ecce764c5dab111103191206&q="+(this.state.cityname))
+    .then(response =>
+      response.data.results.map(location => ({
+        name: this.state.country,
+        temperature: ``,
+        weather: ``,
+      }))
+      )
+      .then(location => {
+      console.log(location);
+      this.setState({
+        location,
+        isLoading: false
+      });
+    })
+    .catch(error => this.setState({ error, isLoading: false }));
   }
   handlechangeText = async cityname =>{
     // this state
@@ -70,7 +99,7 @@ export default class App extends Component<Props> {
   }
   _getForecast(cityname){
     
-    const request_url = "https://api.openweathermap.org/data/2.5/weather?q="+ cityname+"&units=metric"+ "&APPID="+ API_KEY;
+    const request_url = "https://api.apixu.com/v1/current.json?key=16d717ecce764c5dab111103191206&q="+(cityName);
     axios.get(request_url).then((response)=>{
       if( response.status == 200){
         console.log(response.data);
@@ -79,17 +108,17 @@ export default class App extends Component<Props> {
   }
   
   render() {
-    // if( this.state.cityname.length<=0){
-    //   this._getForecast(this.state);
-    //   console.log(this.state);
-    // }
+    if( this.state.cityname.length<=0){
+      this._getForecast(this.state);
+      console.log(this.state);
+    }
     return (
       <ImageBackground source={ require('./background/images/bluesky.jpg')}
       style={styles.container}>
         <View style={styles.inner}>
           <Text style={styles.cityName}>{this.state.cityname}</Text>
-          <Text style={styles.weatherCondition}>Blue Sky</Text>
-          <Text style={styles.temperature}>27</Text>
+          <Text style={styles.weatherCondition}>Clear</Text>
+          <Text style={styles.temperature}>34</Text>
           <TextInput ref= "cityname"
                   onChangeText={this.handlechangeText}
                   style={styles.searchCity} 
