@@ -7,124 +7,105 @@
  */
 
 import React, {Component} from 'react';
-// import getImageBackground from './weather/getImageBackground';
 import {Platform, 
   StyleSheet, 
   Text, 
-  View, 
+  View,   
   ImageBackground,
   TextInput,
 } from 'react-native';
 import axios from 'axios';
-// import { getLocation, getData } from 'react-native-weather-api';
-// getLocation();  s
+import { thisExpression } from '@babel/types';
+// import console = require('console');
 
-// let cityName = ""; 
-// let temperature = "";
-// let windSpeed = "";
+const API_KEY = '16d717ecce764c5dab111103191206';
+const DEFAULT_ZIPCODE = 90210;
 
-// setTimeout(function() {    
-//   let data = new getData()
-//   cityName = data.city;
-//   temperature = data.tempC;
-//   windSpeed = data.windKph;
-    
-//   console.log(cityName);
-// },2000);
-// const API_KEY = 'df321a026c2f5245320b089d52dcedb3';
-// const DEFAULT_ZIPCODE = 90210;
-
-type Props = {};
-export default class App extends Component<Props> {
-  constructor(props){
-    super(props);
-    this.state={
-      cityname:'Phnom Penh',
+export default class App extends Component {
+  constructor(){
+    super();
+    this.state ={
+      zipcode: DEFAULT_ZIPCODE,
+      days:[],
+      cityname: 'Phnom Penh',
     }
-    this.handlechangeText = this.handlechangeText.bind(this);
   }
-  state = {
-    loading: false,
-    error : false,
-    location: '',
-    temperature:0,
-    weather: ""
-  }
-  componentDidMount(){
-    // this.handlechangeText(this.state.country);
-    axios
-    .get("https://api.apixu.com/v1/current.json?key=16d717ecce764c5dab111103191206&q="+(this.state.cityname))
-    .then(response =>
-      response.data.results.map(location => ({
-        name: this.state.country,
-        temperature: ``,
-        weather: ``,
-      }))
-      )
-      .then(location => {
-      console.log(location);
-      this.setState({
-        location,
-        isLoading: false
-      });
-    })
-    .catch(error => this.setState({ error, isLoading: false }));
-  }
-  handlechangeText = async cityname =>{
-    // this state
-    if(!cityname) return;
-      this.setState({
-        loading:true,
-        location: cityname,}, async () =>{
-          try{
-            const locationId = await fetchLocationId(cityname);
-            const { location, weather , temperature} = await fetchWeather(
-              locationId
-            );
-            this.setState({
-              loading: false,
-              error : false,
-              location,
-              temperature,
-              weather
-            });
-          } catch (e){
-            this.setState({
-              loading: false,
-              error : true,
-            })
-          }
-        }
-     )
-  }
-  _getForecast(cityname){
-    
-    const request_url = "https://api.apixu.com/v1/current.json?key=16d717ecce764c5dab111103191206&q="+(cityName);
-    axios.get(request_url).then((response)=>{
-      if( response.status == 200){
-        console.log(response.data);
+  _getForecast(zipcode){
+    const request_url= "https://api.apixu.com/v1/forecast.json?key="+API_KEY+"&q="+zipcode;
+    axios.get(request_url).then( (response) => {  
+      if(response.status == 200){
+        console.log(response.data)
+        var weather = response.data.forecast.forecastday;
+        var locations = response.data.location;
+        console.log(locations);
+        console.log(weather);
+        var forecast = [];
+        var cityname = [];
+        locations.forEach( (element, index) =>{
+          cityname = location([
+            {
+              name: element.name,
+            }
+          ]);
+        })
+        weather.forEach( (element, index) =>{
+          forecast = forecast.concat([
+            {
+              date: element.date.weekday,
+              temperature:{
+                high: 
+                {
+                  fahrenheit: element.high.fahrenheit,
+                  celsius: element.high.celsius,
+                },
+                low:
+                {
+                  fahrenheit: element.low.fahrenheit,
+                  celsius: element.low.celsius
+                }
+              },
+              conditions: element.conditions,
+              wind:
+              {
+                mph: element.avewind.mph,
+                dir: element.avewind.dir
+              },
+              average_humidity: element.avehumidity,
+              icon_url: element.icon_url,
+            }
+          ]);
+          console.log(forecast);
+        });
+        this.setState({ days: data.forecast});
+        console.log(days);
       }
+    }).catch( (error) =>{
+      console.log(error);
     });
   }
-  
   render() {
-    if( this.state.cityname.length<=0){
-      this._getForecast(this.state);
-      console.log(this.state);
+    if(this.state.days.length <= 0){
+      this._getForecast(this.state.zipcode);
     }
     return (
       <ImageBackground source={ require('./background/images/bluesky.jpg')}
       style={styles.container}>
-        <View style={styles.inner}>
-          <Text style={styles.cityName}>{this.state.cityname}</Text>
-          <Text style={styles.weatherCondition}>Clear</Text>
-          <Text style={styles.temperature}>34</Text>
-          <TextInput ref= "cityname"
-                  onChangeText={this.handlechangeText}
-                  style={styles.searchCity} 
-                  placeholder="Search City">
-          </TextInput>
-        </View>
+        {
+          this.state.days.map( (element,index) =>{
+            return(
+              <View key={index} style={styles.inner}>
+                <Text style={styles.cityName}>{response.data.locations.name}</Text>
+                <Text style={styles.weatherCondition}>{element.conditions}</Text>
+                <Text style={styles.temperature}>{element.temperature.high.celsius}C</Text>
+                <TextInput ref= "cityname"
+                        onChangeText={this.handlechangeText}
+                        style={styles.searchCity} 
+                        placeholder="Search City">
+                </TextInput>
+              </View>
+            )
+          })
+        }
       </ImageBackground>
     );
   }
@@ -139,7 +120,7 @@ const styles = StyleSheet.create({
   },
   cityName: {
     fontSize: 30,
-    color:'#ffffff',
+    // color:'#ffffff',
     fontWeight: 'bold',
     textAlign: 'center',
     paddingBottom: 5,
@@ -155,15 +136,20 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   weatherCondition: {
-    color: "#fff",
+    // color: "#fff",
     fontSize:20,
     textAlign: 'center',
     paddingBottom: 10,
   },
   temperature:{
-    color: "#fff",
+    // color: "#fff",
     fontSize:30,
     textAlign: 'center',
     paddingBottom: 20,
+  },
+  inner:{
+    marginTop:10,
+    justifyContent: 'center',
+    alignItems:'center',
   }
 });
