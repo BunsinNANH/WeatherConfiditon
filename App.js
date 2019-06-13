@@ -15,69 +15,31 @@ import {Platform,
   TextInput,
 } from 'react-native';
 import axios from 'axios';
-import { thisExpression } from '@babel/types';
 // import console = require('console');
 
 const API_KEY = '16d717ecce764c5dab111103191206';
-const DEFAULT_ZIPCODE = 90210;
+const DEFAULT_ZIPCODE = 12220;
 
+const images ="./background/images/bluesky.jpg";
 export default class App extends Component {
   constructor(){
     super();
     this.state ={
       zipcode: DEFAULT_ZIPCODE,
       days:[],
-      cityname: 'Phnom Penh',
     }
   }
   _getForecast(zipcode){
     const request_url= "https://api.apixu.com/v1/forecast.json?key="+API_KEY+"&q="+zipcode;
     axios.get(request_url).then( (response) => {  
       if(response.status == 200){
-        console.log(response.data)
-        var weather = response.data.forecast.forecastday;
+        var weather = response.data.current.condition;
         var locations = response.data.location;
-        console.log(locations);
-        console.log(weather);
-        var forecast = [];
-        var cityname = [];
-        locations.forEach( (element, index) =>{
-          cityname = location([
-            {
-              name: element.name,
-            }
-          ]);
-        })
-        weather.forEach( (element, index) =>{
-          forecast = forecast.concat([
-            {
-              date: element.date.weekday,
-              temperature:{
-                high: 
-                {
-                  fahrenheit: element.high.fahrenheit,
-                  celsius: element.high.celsius,
-                },
-                low:
-                {
-                  fahrenheit: element.low.fahrenheit,
-                  celsius: element.low.celsius
-                }
-              },
-              conditions: element.conditions,
-              wind:
-              {
-                mph: element.avewind.mph,
-                dir: element.avewind.dir
-              },
-              average_humidity: element.avehumidity,
-              icon_url: element.icon_url,
-            }
-          ]);
-          console.log(forecast);
+        var cityname = Object.keys(locations).map(function(key) {
+          return [Number(key), locations[key]];
         });
-        this.setState({ days: data.forecast});
-        console.log(days);
+        console.log(cityname[1][1])
+        this.setState({ days:cityname[1][1]});
       }
     }).catch( (error) =>{
       console.log(error);
@@ -88,15 +50,15 @@ export default class App extends Component {
       this._getForecast(this.state.zipcode);
     }
     return (
-      <ImageBackground source={ require('./background/images/bluesky.jpg')}
+      <ImageBackground source={ require(images)}
       style={styles.container}>
         {
           this.state.days.map( (element,index) =>{
             return(
-              <View key={index} style={styles.inner}>
-                <Text style={styles.cityName}>{response.data.locations.name}</Text>
-                <Text style={styles.weatherCondition}>{element.conditions}</Text>
-                <Text style={styles.temperature}>{element.temperature.high.celsius}C</Text>
+              <View key={index} style={{ marginTop:10, justifyContent: 'center',alignItems:'center',}}>
+                <Text style={styles.cityName}>{this.state.locations}</Text>
+                <Text style={styles.weatherCondition}></Text>
+                <Text style={styles.temperature}></Text>
                 <TextInput ref= "cityname"
                         onChangeText={this.handlechangeText}
                         style={styles.searchCity} 
@@ -120,7 +82,7 @@ const styles = StyleSheet.create({
   },
   cityName: {
     fontSize: 30,
-    // color:'#ffffff',
+    color:'#fff',
     fontWeight: 'bold',
     textAlign: 'center',
     paddingBottom: 5,
@@ -136,20 +98,16 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   weatherCondition: {
-    // color: "#fff",
+    color: "#fff",
     fontSize:20,
     textAlign: 'center',
     paddingBottom: 10,
   },
   temperature:{
-    // color: "#fff",
+    color: "#fff",
     fontSize:30,
     textAlign: 'center',
     paddingBottom: 20,
   },
-  inner:{
-    marginTop:10,
-    justifyContent: 'center',
-    alignItems:'center',
-  }
+  
 });
