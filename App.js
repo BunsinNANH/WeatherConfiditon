@@ -18,32 +18,56 @@ import axios from 'axios';
 // import console = require('console');
 
 const API_KEY = '16d717ecce764c5dab111103191206';
-const DEFAULT_ZIPCODE = 12220;
+const DEFAULT_CITY = 'Phnom Penh';
 
 const images ="./background/images/bluesky.jpg";
 export default class App extends Component {
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state ={
-      zipcode: DEFAULT_ZIPCODE,
+      zipcode: DEFAULT_CITY,
       days:[],
+      condition:[],
     }
   }
   _getForecast(zipcode){
     const request_url= "https://api.apixu.com/v1/forecast.json?key="+API_KEY+"&q="+zipcode;
     axios.get(request_url).then( (response) => {  
       if(response.status == 200){
-        var weather = response.data.current.condition;
-        var locations = response.data.location;
-        var cityname = Object.keys(locations).map(function(key) {
-          return [Number(key), locations[key]];
+        var weather = response.data.forecast.forecastday;
+        var locations = response.data.location.name;
+        var forecast= [];
+        console.log(response.data);
+        this.setState({zipcode: locations})
+       
+        weather.forEach( (element,index) =>{
+          forecast = forecast.concat([
+            {
+              date: element.day.weekday,
+              temperature:
+              {
+                day:
+                {
+                  maxtemp_c: element.day.maxtemp_c,
+                  condition: 
+                  {
+                    text: element.day.condition.text,
+                  }
+                }
+              },
+              average_humidity: element.evehumidity,
+              icon_url: element.icon_url
+            }
+          ]);
         });
-        console.log(cityname[1][1])
-        this.setState({ days:cityname[1][1]});
+        this.setState({days:forecast});
       }
     }).catch( (error) =>{
       console.log(error);
     });
+  }
+  handlechangeText = (newCity) =>{
+    this.setState({zipcode: newCity});
   }
   render() {
     if(this.state.days.length <= 0){
@@ -56,13 +80,13 @@ export default class App extends Component {
           this.state.days.map( (element,index) =>{
             return(
               <View key={index} style={{ marginTop:10, justifyContent: 'center',alignItems:'center',}}>
-                <Text style={styles.cityName}>{this.state.locations}</Text>
-                <Text style={styles.weatherCondition}></Text>
-                <Text style={styles.temperature}></Text>
-                <TextInput ref= "cityname"
-                        onChangeText={this.handlechangeText}
-                        style={styles.searchCity} 
-                        placeholder="Search City">
+                <Text style={styles.cityName}>{this.state.zipcode}</Text>
+                <Text style={styles.weatherCondition}>{element.temperature.day.condition.text}</Text>
+                <Text style={styles.temperature}>{element.temperature.day.maxtemp_c}°C </Text>
+                <TextInput ref= "cityname" 
+                style={styles.searchCity} 
+                onChangeText={this.handlechangeText}
+                placeholder="Search any City">
                 </TextInput>
               </View>
             )
