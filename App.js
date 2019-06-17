@@ -15,17 +15,16 @@ import {Platform,
   TextInput,
 } from 'react-native';
 import axios from 'axios';
-// import console = require('console');
 
 const API_KEY = '16d717ecce764c5dab111103191206';
-const DEFAULT_CITY = 'Phnom Penh';
+// var DEFAULT_CITY = 'Loas';
 
 const images ="./background/images/bluesky.jpg";
 export default class App extends Component {
   constructor(props){
     super(props);
     this.state ={
-      zipcode: DEFAULT_CITY,
+      zipcode: "Kandal",
       days:[],
       condition:[],
     }
@@ -37,9 +36,8 @@ export default class App extends Component {
         var weather = response.data.forecast.forecastday;
         var locations = response.data.location.name;
         var forecast= [];
-        console.log(response.data);
         this.setState({zipcode: locations})
-       
+        console.log(response.data)
         weather.forEach( (element,index) =>{
           forecast = forecast.concat([
             {
@@ -61,6 +59,7 @@ export default class App extends Component {
           ]);
         });
         this.setState({days:forecast});
+        
       }
     }).catch( (error) =>{
       console.log(error);
@@ -69,9 +68,15 @@ export default class App extends Component {
   handlechangeText = (newCity) =>{
     this.setState({zipcode: newCity});
   }
+ 
   render() {
     if(this.state.days.length <= 0){
-      this._getForecast(this.state.zipcode);
+      if(this.handlechangeText){
+        this._getForecast(this.state.zipcode);
+      }else{
+        this.setState({zipcode: newCity});
+        console.log(zipcode);
+      }
     }
     return (
       <ImageBackground source={ require(images)}
