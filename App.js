@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, 
+import {
   StyleSheet, 
   Text, 
   View,   
@@ -17,28 +17,34 @@ import {Platform,
 import axios from 'axios';
 
 const API_KEY = '16d717ecce764c5dab111103191206';
-// var DEFAULT_CITY = 'Loas';
 
-const images ="./background/images/bluesky.jpg";
+const images = '';
 export default class App extends Component {
   constructor(props){
     super(props);
     this.state ={
-      zipcode: "Kandal",
+      city: "Phnom Penh",
       days:[],
       condition:[],
+      temp_c:[],
+      background: images,
+      isLoading: false
     }
   }
-  _getForecast(zipcode){
-    const request_url= "https://api.apixu.com/v1/forecast.json?key="+API_KEY+"&q="+zipcode;
+  _getForecast(city){
+    const request_url= "https://api.apixu.com/v1/forecast.json?key="+API_KEY+"&q="+city;
     axios.get(request_url).then( (response) => {  
       if(response.status == 200){
         var weather = response.data.forecast.forecastday;
         var locations = response.data.location.name;
         var forecast= [];
-        this.setState({zipcode: locations})
         console.log(response.data)
-        weather.forEach( (element,index) =>{
+        var weathercondition = response.data.current.condition.text;
+        var temp = response.data.current.temp_c;
+        this.setState({temp_c:temp})
+        this.setState({condition:weathercondition})
+        this.setState({city: locations})
+        weather.forEach( (element) =>{
           forecast = forecast.concat([
             {
               date: element.day.weekday,
@@ -52,46 +58,121 @@ export default class App extends Component {
                     text: element.day.condition.text,
                   }
                 }
-              },
-              average_humidity: element.evehumidity,
-              icon_url: element.icon_url
+              }
             }
           ]);
         });
         this.setState({days:forecast});
-        
+        if(weathercondition == 'Cloudy' || weathercondition == 'Mostly Cloud' ){
+          this.setState({background: require('./background/images/cloudy.jpg')});
+        }else if(weathercondition == 'Light rain shower' || weathercondition == 'shower' ){
+          this.setState({background: require('./background/images/showers.jpg')});
+        }else if(weathercondition == 'Rain' || weathercondition == 'light rain' || weathercondition == 'heavy rain'){
+          this.setState({background: require('./background/images/rain.jpg')});
+        }else if(weathercondition == 'Mist' || weathercondition == 'mist' || weathercondition == 'Fog'){
+          this.setState({background: require('./background/images/mist.jpg')});
+        }else if(weathercondition == 'Thunderstorm' || weathercondition == 'thunderstorm' ){
+          this.setState({background: require('./background/images/stormy.png')});
+        }else if(weathercondition == 'Clear' || weathercondition == 'clear sky' || weathercondition == 'Overcast'){
+          this.setState({background: require('./background/images/clear.jpg')});
+        }else if(weathercondition == 'Rain' || weathercondition == 'Heavy rain' || weathercondition == 'Moderate rain'){
+          this.setState({background: require('./background/images/rainy-cloud.jpg')});
+        }else if(weathercondition == 'Sunny' ){
+          this.setState({background: require('./background/images/sunny.jpeg')});
+        }else if(weathercondition == 'Haze' ){
+          this.setState({background: require('./background/images/haze.jpeg')});
+        }else if(weathercondition == 'Partly cloudy' ){
+          this.setState({background: require('./background/images/bluesky.jpg')});
+        }else if(weathercondition == 'Moderate rain at times' ){
+          this.setState({background: require('./background/images/rainattime.jpg')});
+        }
       }
     }).catch( (error) =>{
       console.log(error);
     });
   }
-  handlechangeText = (newCity) =>{
-    this.setState({zipcode: newCity});
-  }
- 
+  searchCity = async () => {
+    this.setState({
+      isLoading: true
+    });
+    const url = `https://api.apixu.com/v1/forecast.json?key=${API_KEY}&q=${this.state.city}`;
+    axios.get(url).then( (response) => {  
+      if(response.status == 200){
+        var weather = response.data.forecast.forecastday;
+        var locations = response.data.location.name;
+        var forecast= [];
+        var weathercondition = response.data.current.condition.text;
+        var temp = response.data.current.temp_c;
+        this.setState({temp_c:temp})
+        this.setState({condition:weathercondition})
+        this.setState({city: locations})
+        weather.forEach( (element) =>{
+          forecast = forecast.concat([
+            {
+              date: element.day.weekday,
+              temperature:
+              {
+                day:
+                {
+                  maxtemp_c: element.day.maxtemp_c,
+                  condition: 
+                  {
+                    text: element.day.condition.text,
+                  }
+                }
+              }
+            }
+          ]);
+        });
+        this.setState({days:forecast});
+
+        if(weathercondition == 'Cloudy' || weathercondition == 'Mostly Cloud' ){
+          this.setState({background: require('./background/images/cloudy.jpg')});
+        }else if(weathercondition == 'Light rain shower' || weathercondition == 'shower' ){
+          this.setState({background: require('./background/images/showers.jpg')});
+        }else if(weathercondition == 'Rain' || weathercondition == 'light rain' || weathercondition == 'heavy rain'){
+          this.setState({background: require('./background/images/rain.jpg')});
+        }else if(weathercondition == 'Mist' || weathercondition == 'mist' || weathercondition == 'Fog'){
+          this.setState({background: require('./background/images/mist.jpg')});
+        }else if(weathercondition == 'Thunderstorm' || weathercondition == 'thunderstorm' || weathercondition == 'Thundery outbreaks possible'){
+          this.setState({background: require('./background/images/stormy.png')});
+        }else if(weathercondition == 'Clear' || weathercondition == 'clear sky' || weathercondition == 'Overcast'){
+          this.setState({background: require('./background/images/clear.jpg')});
+        }else if(weathercondition == 'Rain' || weathercondition == 'Heavy rain' || weathercondition == 'Moderate rain'){
+          this.setState({background: require('./background/images/rainy-cloud.jpg')});
+        }else if(weathercondition == 'Sunny' ){
+          this.setState({background: require('./background/images/sunny.jpeg')});
+        }else if(weathercondition == 'Haze' ){
+          this.setState({background: require('./background/images/haze.jpeg')});
+        }else if(weathercondition == 'Partly cloudy' ){
+          this.setState({background: require('./background/images/bluesky.jpg')});
+        }else if(weathercondition == 'Moderate rain at times' ){
+          this.setState({background: require('./background/images/rainattime.jpg')});
+        }
+      }
+    })
+  };
   render() {
     if(this.state.days.length <= 0){
-      if(this.handlechangeText){
-        this._getForecast(this.state.zipcode);
-      }else{
-        this.setState({zipcode: newCity});
-        console.log(zipcode);
-      }
+      this._getForecast(this.state.city);
     }
     return (
-      <ImageBackground source={ require(images)}
+      <ImageBackground source={(this.state.background)}
       style={styles.container}>
         {
-          this.state.days.map( (element,index) =>{
+          this.state.days.map( (index) =>{
             return(
               <View key={index} style={{ marginTop:10, justifyContent: 'center',alignItems:'center',}}>
-                <Text style={styles.cityName}>{this.state.zipcode}</Text>
-                <Text style={styles.weatherCondition}>{element.temperature.day.condition.text}</Text>
-                <Text style={styles.temperature}>{element.temperature.day.maxtemp_c}°C </Text>
+                <Text style={styles.cityName}>{this.state.city}</Text>
+                <Text style={styles.weatherCondition}>{this.state.condition}</Text>
+                <Text style={styles.temperature}>{this.state.temp_c}°C </Text>
                 <TextInput ref= "cityname" 
-                style={styles.searchCity} 
-                onChangeText={this.handlechangeText}
-                placeholder="Search any City">
+                  style={styles.searchCity} 
+                  onChangeText={city => {
+                    this.setState({ city });
+                  }}
+                  onSubmitEditing={this.searchCity}
+                  placeholder="Search any City">
                 </TextInput>
               </View>
             )
@@ -138,5 +219,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingBottom: 20,
   },
-  
 });
