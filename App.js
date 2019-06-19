@@ -15,10 +15,10 @@ import {
   TextInput,
 } from 'react-native';
 import axios from 'axios';
-
+// get api key
 const API_KEY = '16d717ecce764c5dab111103191206';
-
-const images = '';
+// get default background
+const images = require('./background/images/back.jpg');
 export default class App extends Component {
   constructor(props){
     super(props);
@@ -31,14 +31,15 @@ export default class App extends Component {
       isLoading: false
     }
   }
+  // get weather data api
   _getForecast(city){
     const request_url= "https://api.apixu.com/v1/forecast.json?key="+API_KEY+"&q="+city;
     axios.get(request_url).then( (response) => {  
       if(response.status == 200){
+        // declare variable of data
         var weather = response.data.forecast.forecastday;
         var locations = response.data.location.name;
         var forecast= [];
-        console.log(response.data)
         var weathercondition = response.data.current.condition.text;
         var temp = response.data.current.temp_c;
         this.setState({temp_c:temp})
@@ -63,13 +64,13 @@ export default class App extends Component {
           ]);
         });
         this.setState({days:forecast});
-        
+        // get background weather images
         if(weathercondition == 'Cloudy' || weathercondition == 'Mostly Cloud' ){
           this.setState({background: require('./background/images/cloudy.jpg')});
         }else if(weathercondition == 'Light rain shower' || weathercondition == 'shower' ){
           this.setState({background: require('./background/images/showers.jpg')});
-        }else if(weathercondition == 'Rain' || weathercondition == 'light rain' || weathercondition == 'heavy rain'){
-          this.setState({background: require('./background/images/rain.jpg')});
+        }else if(weathercondition == 'Patchy rain possible' || weathercondition == 'light rain' || weathercondition == 'heavy rain'){
+          this.setState({background: require('./background/images/rain.jpeg')});
         }else if(weathercondition == 'Mist' || weathercondition == 'mist' || weathercondition == 'Fog'){
           this.setState({background: require('./background/images/mist.jpg')});
         }else if(weathercondition == 'Thunderstorm' || weathercondition == 'thunderstorm' ){
@@ -86,12 +87,15 @@ export default class App extends Component {
           this.setState({background: require('./background/images/bluesky.jpg')});
         }else if(weathercondition == 'Moderate rain at times' ){
           this.setState({background: require('./background/images/rainattime.jpg')});
+        }else{
+          this.setState({background: require('./background/images/back.jpg')});
         }
       }
     }).catch( (error) =>{
       console.log(error);
     });
   }
+  // function for search weather by city name
   searchCity = async () => {
     this.setState({
       isLoading: true
@@ -104,7 +108,6 @@ export default class App extends Component {
         var forecast= [];
         var weathercondition = response.data.current.condition.text;
         var temp = response.data.current.temp_c;
-        console.log(weathercondition)
         this.setState({temp_c:temp})
         this.setState({condition:weathercondition})
         this.setState({city: locations})
@@ -127,13 +130,13 @@ export default class App extends Component {
           ]);
         });
         this.setState({days:forecast});
-
+        // get background weather images
         if(weathercondition == 'Cloudy' || weathercondition == 'Mostly Cloud' ){
           this.setState({background: require('./background/images/cloudy.jpg')});
         }else if(weathercondition == 'Light rain shower' || weathercondition == 'shower' ){
           this.setState({background: require('./background/images/showers.jpg')});
-        }else if(weathercondition == 'Rain' || weathercondition == 'light rain' || weathercondition == 'heavy rain'){
-          this.setState({background: require('./background/images/rain.jpg')});
+        }else if(weathercondition == 'Patchy rain possible' || weathercondition == 'light rain' || weathercondition == 'heavy rain'){
+          this.setState({background: require('./background/images/rain.jpeg')});
         }else if(weathercondition == 'Mist' || weathercondition == 'mist' || weathercondition == 'Fog'){
           this.setState({background: require('./background/images/mist.jpg')});
         }else if(weathercondition == 'Thunderstorm' || weathercondition == 'thunderstorm' || weathercondition == 'Thundery outbreaks possible'){
@@ -150,10 +153,13 @@ export default class App extends Component {
           this.setState({background: require('./background/images/bluesky.jpg')});
         }else if(weathercondition == 'Moderate rain at times' ){
           this.setState({background: require('./background/images/rainattime.jpg')});
+        }else{
+          this.setState({background: require('./background/images/back.jpg')});
         }
       }
     })
   };
+  // render app view 
   render() {
     if(this.state.days.length <= 0){
       this._getForecast(this.state.city);
@@ -163,6 +169,7 @@ export default class App extends Component {
       style={styles.container}>
         {
           this.state.days.map( (index) =>{
+            // return app view data
             return(
               <View key={index} style={{ marginTop:10, justifyContent: 'center',alignItems:'center',}}>
                 <Text style={styles.cityName}>{this.state.city}</Text>
@@ -184,7 +191,7 @@ export default class App extends Component {
     );
   }
 }
-
+// app style sheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -202,7 +209,7 @@ const styles = StyleSheet.create({
   searchCity: {
     color: '#000',
     borderWidth: 1,
-    borderColor: '#fafafa',
+    borderColor: '#fff',
     backgroundColor:'#f5f5f5',
     width: 250,
     height: 30,
