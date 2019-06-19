@@ -63,6 +63,7 @@ export default class App extends Component {
           ]);
         });
         this.setState({days:forecast});
+        
         if(weathercondition == 'Cloudy' || weathercondition == 'Mostly Cloud' ){
           this.setState({background: require('./background/images/cloudy.jpg')});
         }else if(weathercondition == 'Light rain shower' || weathercondition == 'shower' ){
@@ -79,7 +80,7 @@ export default class App extends Component {
           this.setState({background: require('./background/images/rainy-cloud.jpg')});
         }else if(weathercondition == 'Sunny' ){
           this.setState({background: require('./background/images/sunny.jpeg')});
-        }else if(weathercondition == 'Haze' ){
+        }else if(weathercondition == 'Haze' || weathercondition=='Patchy light drizzle'){
           this.setState({background: require('./background/images/haze.jpeg')});
         }else if(weathercondition == 'Partly cloudy' ){
           this.setState({background: require('./background/images/bluesky.jpg')});
@@ -103,6 +104,7 @@ export default class App extends Component {
         var forecast= [];
         var weathercondition = response.data.current.condition.text;
         var temp = response.data.current.temp_c;
+        console.log(weathercondition)
         this.setState({temp_c:temp})
         this.setState({condition:weathercondition})
         this.setState({city: locations})
@@ -142,7 +144,7 @@ export default class App extends Component {
           this.setState({background: require('./background/images/rainy-cloud.jpg')});
         }else if(weathercondition == 'Sunny' ){
           this.setState({background: require('./background/images/sunny.jpeg')});
-        }else if(weathercondition == 'Haze' ){
+        }else if(weathercondition == 'Haze' || weathercondition=='Patchy light drizzle'){
           this.setState({background: require('./background/images/haze.jpeg')});
         }else if(weathercondition == 'Partly cloudy' ){
           this.setState({background: require('./background/images/bluesky.jpg')});
