@@ -13,6 +13,7 @@ import {
   View,   
   ImageBackground,
   TextInput,
+  StatusBar
 } from 'react-native';
 import axios from 'axios';
 // get api key
@@ -172,6 +173,7 @@ export default class App extends Component {
             // return app view data
             return(
               <View key={index} style={{ marginTop:10, justifyContent: 'center',alignItems:'center',}}>
+                <StatusBar barStyle="default" />
                 <Text style={styles.cityName}>{this.state.city}</Text>
                 <Text style={styles.weatherCondition}>{this.state.condition}</Text>
                 <Text style={styles.temperature}>{this.state.temp_c}°C </Text>
@@ -212,7 +214,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     backgroundColor:'#f5f5f5',
     width: 250,
-    height: 30,
+    height: 38,
     borderRadius: 10,
     paddingLeft: 10,
   },
